@@ -1,4 +1,5 @@
-import React, { useContext, createContext, useReducer } from "react";
+//CountProvider.tsx
+import React, { createContext, useReducer, useContext } from "react";
 
 interface State {
   count: number;
@@ -8,7 +9,7 @@ interface Action {
   type: "INCREMENT" | "DECREMENT" | "RESET";
 }
 
-interface contextprops {
+interface ContextProps {
   state: State;
   dispatch: React.Dispatch<Action>;
   functions: {
@@ -20,51 +21,99 @@ interface ParentProps {
   children: React.ReactNode;
 }
 
-const Store = createContext<contextprops | undefined>(undefined);
+const MyContext = createContext<ContextProps | undefined>(undefined);
 
-const logCount = () => {
-  console.log("Logging count...");
-  alert("logCount(): Logging count !!!");
-};
-
-const reducer = (state: State, action: Action) => {
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "INCREMENT":
-      return { count: state.count + 1 };
+      return { ...state, count: state.count + 1 };
     case "DECREMENT":
-      return { count: state.count - 1 };
+      return { ...state, count: state.count - 1 };
     case "RESET":
-      return { count: 0 };
+      return { ...state, count: 0 };
     default:
       return state;
   }
 };
 
 export const CountProvider: React.FC<ParentProps> = ({ children }) => {
-  const initialState = {
-    count: 0,
-  };
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
 
-  const functions = {
-    logCount,
+  const logCount = () => {
+    console.log("Count:", state.count);
+  };
+
+  const contextValue: ContextProps = {
+    state,
+    dispatch,
+    functions: { logCount },
   };
 
   return (
-    <Store.Provider value={{ state, dispatch, functions }}>
-      {children}
-    </Store.Provider>
+    <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>
   );
 };
 
-const countChild = () => {
-  const hook = useContext(Store);
-
-  if (!hook) {
-    return null;
+export const useCount = (): ContextProps => {
+  const context = useContext(MyContext);
+  if (!context) {
+    throw new Error("useCount must be used within a CountProvider");
   }
-
-  return hook;
+  return context;
 };
 
-export const CountProviderObject = { CountProvider, countChild };
+//App.tsx
+import "./styles.css";
+import { useCount, CountProvider } from "./CountProvider";
+export default function App() {
+  const { state, dispatch, functions } = useCount();
+  const increment = () => {
+    dispatch({ type: "INCREMENT" });
+  };
+
+  const decrement = () => {
+    dispatch({ type: "DECREMENT" });
+  };
+
+  const reset = () => {
+    dispatch({ type: "RESET" });
+  };
+
+  const handleLogCount = () => {
+    functions.logCount();
+  };
+
+  return (
+    <CountProvider>
+      <div className="App">
+        {state.count}
+        <button onClick={increment}>Increment </button>
+        <button onClick={decrement}>Decrement </button>
+        <button onClick={reset}> Reset</button>
+        <button onClick={handleLogCount}>Log Count</button>
+      </div>
+    </CountProvider>
+  );
+}
+
+//index.tsx
+import React, { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { CountProvider } from "./CountProvider";
+import App from "./App";
+
+const rootElement = document.getElementById("root");
+
+if (rootElement) {
+  const root = createRoot(rootElement);
+
+  root.render(
+    <React.StrictMode>
+      <CountProvider>
+        <App />
+      </CountProvider>
+    </React.StrictMode>
+  );
+} else {
+  console.error("Root element not found!");
+}
