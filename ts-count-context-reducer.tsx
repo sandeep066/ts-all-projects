@@ -21,7 +21,7 @@ interface ParentProps {
   children: React.ReactNode;
 }
 
-const MyContext = createContext<ContextProps | undefined>(undefined);
+const Store = createContext<ContextProps | undefined>(undefined);
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -40,7 +40,7 @@ export const CountProvider: React.FC<ParentProps> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, { count: 0 });
 
   const logCount = () => {
-    console.log("Count:", state.count);
+    alert(`Count: ${state.count}`);
   };
 
   const contextValue: ContextProps = {
@@ -49,18 +49,17 @@ export const CountProvider: React.FC<ParentProps> = ({ children }) => {
     functions: { logCount },
   };
 
-  return (
-    <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>
-  );
+  return <Store.Provider value={contextValue}>{children}</Store.Provider>;
 };
 
 export const useCount = (): ContextProps => {
-  const context = useContext(MyContext);
+  const context = useContext(Store);
   if (!context) {
     throw new Error("useCount must be used within a CountProvider");
   }
   return context;
 };
+
 
 //App.tsx
 import "./styles.css";
