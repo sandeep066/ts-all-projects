@@ -9,14 +9,14 @@ interface ParentProps {
 }
 const Store = createContext<IContext | undefined>(undefined);
 
-const Parent = (props: ParentProps) => {
+const Parent: React.FC<ParentProps> = ({ children }) => {
   const obj = {
     text: "Hello Sandeep",
   };
-  return <Store.Provider value={obj}>{props.children}</Store.Provider>;
+  return <Store.Provider value={obj}>{children}</Store.Provider>;
 };
 
-const Child = () => {
+const Child: React.FC = () => {
   const hook = useContext(Store);
   if (!hook) {
     return null;
