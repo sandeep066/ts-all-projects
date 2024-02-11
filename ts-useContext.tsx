@@ -31,7 +31,7 @@ export { Parent, Child };
 
 
 /*
-const Store = createContext<IContext | undefined>(undefined);
+1)const Store = createContext<IContext | undefined>(undefined);
 
 The reason for defining undefined twice in the createContext function call is to provide
 both the initial value and the default value for the context.
@@ -53,4 +53,19 @@ The initial value of the context is set to undefined as specified in the createC
 By providing undefined as both the type and the initial value, we ensure that the context is correctly initialized 
 with an undefined value when no provider is present, and it's clear to TypeScript that the context value can potentially
 be undefined. This helps maintain type safety throughout the application when using the context.
+
+2)const Parent: React.FC<ParentProps> = ({ children }) => {}
+
+React.FC stands for "React Function Component". It denotes that Parent is a function component in React.
+
+In TypeScript, React.FC is a generic type provided by the React library.
+It's used to define function components in React applications.
+
+The type parameter <ParentProps> specifies the type of props that the component expects to receive.
+In the context of React.FC<ParentProps>, ParentProps represents the input props for the component, i.e.,
+the props that are passed into the component from its parent.
+So, in summary, React.FC is used to define a function component in React, and ParentProps represents 
+the input props for the Parent component.
+
+
 */
